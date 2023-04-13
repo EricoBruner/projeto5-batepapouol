@@ -36,10 +36,9 @@ function createConnection(nameUser) {
     axios.post(urlCreate, { 
         name: nameUser,
     })
-    .then(function (response) {
+    .then(function () {
         setInterval(keepConnection, 5000);
-        setInterval(fetchMessages, 1000)
-        console.log(response);
+        setInterval(fetchMessages, 3000);
     })  
     .catch(function (error) {
         console.log(`This name is already in use. Message: ${error}`);
@@ -72,7 +71,7 @@ function loadMessages(messages) {
 
         if(message.type == "status") {
             newMessage = `
-                <div class="messages ${message.type}">
+                <div class="messages ${message.type}" data-test="message">
                     <p>
                         <time> (${message.time}) </time>
                         <strong> ${message.from} </strong>
@@ -82,7 +81,7 @@ function loadMessages(messages) {
             `;
         } else {
             newMessage = `
-                <div class="messages ${message.type}">
+                <div class="messages ${message.type}" data-test="message">
                     <p>
                         <time> (${message.time}) </time>
                         <strong> ${message.from} </strong>
@@ -102,20 +101,18 @@ function sendMessage() {
     axios.defaults.headers.common['Authorization'] = token;
     let message = document.getElementById("input");
     
-    const newMessage = 
-
     axios.post(urlSend, { 
         from: nameUser,
         to: "Todos",
         text: message.value,
         type: "message"
     })
-    .then(function (response) {
-        console.log(response);
+    .then(function () {
         fetchMessages()
     })  
     .catch(function (error) {
         console.log(`An error occurred while send messages. Message: ${error}`);
+        window.location.reload()
     })
 
     message.value = '';

@@ -99,6 +99,7 @@ body {
 
 .messages p {
     line-height: 20px;
+    word-break: break-word;
 }
 
 .messages time {
