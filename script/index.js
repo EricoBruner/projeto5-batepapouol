@@ -4,7 +4,8 @@ let messages;
 const urlCreate = "https://mock-api.driven.com.br/api/vm/uol/participants";
 const urlStatus = "https://mock-api.driven.com.br/api/vm/uol/status";
 const urlFetch = "https://mock-api.driven.com.br/api/vm/uol/messages";
-const token = "cshqAODWPkvCuVgNfgQB06EX";
+const urlSend = "https://mock-api.driven.com.br/api/vm/uol/messages";
+const token = "ZsXywYegbxnjAwhk1ftApevS";
 
 function askName() {
     nameUser = '';
@@ -37,6 +38,7 @@ function createConnection(nameUser) {
     })
     .then(function (response) {
         setInterval(keepConnection, 5000);
+        setInterval(fetchMessages, 1000)
         console.log(response);
     })  
     .catch(function (error) {
@@ -61,6 +63,7 @@ function fetchMessages() {
 
 function loadMessages(messages) {
     let chat = document.querySelector(".chat");
+    chat.innerHTML = '';
 
     messages.map((message) => {
         let newMessage;
@@ -84,7 +87,7 @@ function loadMessages(messages) {
                         <time> (${message.time}) </time>
                         <strong> ${message.from} </strong>
                         ${preposition}  
-                        <strong> ${message.to} </strong>
+                        <strong> ${message.to}: </strong>
                         ${message.text}
                     </p>
                 </div>
@@ -95,7 +98,29 @@ function loadMessages(messages) {
     })
 }
 
+function sendMessage() {
+    axios.defaults.headers.common['Authorization'] = token;
+    let message = document.getElementById("input");
+    
+    const newMessage = 
+
+    axios.post(urlSend, { 
+        from: nameUser,
+        to: "Todos",
+        text: message.value,
+        type: "message"
+    })
+    .then(function (response) {
+        console.log(response);
+        fetchMessages()
+    })  
+    .catch(function (error) {
+        console.log(`An error occurred while send messages. Message: ${error}`);
+    })
+
+    message.value = '';
+}
+
 askName();
-fetchMessages();
 
 
