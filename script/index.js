@@ -5,11 +5,11 @@ const urlCreate = "https://mock-api.driven.com.br/api/vm/uol/participants";
 const urlStatus = "https://mock-api.driven.com.br/api/vm/uol/status";
 const urlFetch = "https://mock-api.driven.com.br/api/vm/uol/messages";
 const urlSend = "https://mock-api.driven.com.br/api/vm/uol/messages";
+const urlCheck = "https://mock-api.driven.com.br/api/vm/uol/participants";
 const token = "ZsXywYegbxnjAwhk1ftApevS";
+axios.defaults.headers.common['Authorization'] = token;
 
 function askName() {
-    nameUser = '';
-    
     while(nameUser == '' || nameUser == null) {
         nameUser = prompt("Qual seu lindo nome?");
     }
@@ -26,24 +26,35 @@ function keepConnection() {
     })  
     .catch(function (error) {
         console.log(`This name is already in use. Message: ${error}`);
-        askName();
+        window.location.reload();
     })
 }
 
-function createConnection(nameUser) {
-    axios.defaults.headers.common['Authorization'] = token;
-
-    axios.post(urlCreate, { 
-        name: nameUser,
+async function createConnection(nameUser) {
+    const response = await axios.get(urlCheck);
+    let participants = response.data;
+    let check = participants.find((participant) => {
+        if(participant.name == nameUser) {            
+            return participant;
+        }
     })
-    .then(function () {
-        setInterval(keepConnection, 5000);
-        setInterval(fetchMessages, 3000);
-    })  
-    .catch(function (error) {
-        console.log(`This name is already in use. Message: ${error}`);
-        askName();
-    })
+    
+    if(check) {
+        console.log(`This name is already in use.`);
+        window.location.reload();
+    } else {   
+        axios.post(urlCreate, { 
+            name: nameUser,
+        })
+        .then(function () {
+            setInterval(keepConnection, 5000);
+            setInterval(fetchMessages, 3000);
+        })  
+        .catch(function (error) {
+            console.log(`Error creating connection. Message: ${error}`);
+            window.location.reload();
+        })
+    }
 }
 
 function fetchMessages() {
@@ -55,8 +66,8 @@ function fetchMessages() {
         loadMessages(messages);
     })  
     .catch(function (error) {
-        console.log(`An error occurred while fetching messages. Message: ${error}`);
-        askName();
+        console.log(`An error occurred while fetching messages. Message: ${error}`); 
+        window.location.reload();
     })
 }
 
@@ -105,14 +116,14 @@ function sendMessage() {
         from: nameUser,
         to: "Todos",
         text: message.value,
-        type: "message"
+        type: "message",
     })
     .then(function () {
-        fetchMessages()
+        fetchMessages();
     })  
     .catch(function (error) {
         console.log(`An error occurred while send messages. Message: ${error}`);
-        window.location.reload()
+        window.location.reload();
     })
 
     message.value = '';
