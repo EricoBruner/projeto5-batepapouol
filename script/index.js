@@ -7,7 +7,14 @@ const urlFetch = "https://mock-api.driven.com.br/api/vm/uol/messages";
 const urlSend = "https://mock-api.driven.com.br/api/vm/uol/messages";
 const urlCheck = "https://mock-api.driven.com.br/api/vm/uol/participants";
 const token = "ZsXywYegbxnjAwhk1ftApevS";
+
 axios.defaults.headers.common['Authorization'] = token;
+
+document.getElementById("input").addEventListener("keyup", function(e){
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
 
 function askName() {
     while(nameUser == '' || nameUser == null) {
@@ -73,9 +80,12 @@ function fetchMessages() {
 
 function loadMessages(messages) {
     let chat = document.querySelector(".chat");
+    
     chat.innerHTML = '';
 
-    messages.map((message) => {
+    const filteredMessages = filterMessages(messages);
+
+    filteredMessages.map((message) => {
         let newMessage;
         let preposition = "para"
         if(message.type == "private_message") {preposition = "reservadamente para"}
@@ -108,8 +118,14 @@ function loadMessages(messages) {
     })
 }
 
+function sendInputMessage(e) {
+    var key = e.which || e.keyCode;
+    if (key == 13) {
+        sendMessage();
+    }
+}
+
 function sendMessage() {
-    axios.defaults.headers.common['Authorization'] = token;
     let message = document.getElementById("input");
     
     axios.post(urlSend, { 
@@ -127,6 +143,22 @@ function sendMessage() {
     })
 
     message.value = '';
+}
+
+function filterMessages(messages) {
+    const filteredMessages = messages.filter((message) => {
+        if(message.type == "private_message") {
+            if(message.to == nameUser) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    })
+
+    return filteredMessages;
 }
 
 askName();
